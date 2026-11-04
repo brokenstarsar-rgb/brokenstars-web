@@ -146,6 +146,8 @@ th{font-family:var(--f-mono);font-weight:400;font-size:11px;letter-spacing:.14em
 .road{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
 .road span{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:6px 10px;border:1px solid var(--line);color:var(--raw-dim)}
 .road span.now{border-color:var(--amber);color:var(--amber)}
+.road a.past{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:6px 10px;border:1px solid var(--raw-dim);color:var(--raw);text-decoration:none}
+.road a.past:hover{border-color:var(--raw)}
 .road span.lock{position:relative}
 .road span.lock i{font-style:normal;filter:blur(4px);opacity:.6;user-select:none}
 .road span.lock::after{content:"?";position:absolute;inset:0;display:grid;place-items:center;color:var(--raw)}
@@ -360,7 +362,7 @@ footer{padding-block:40px calc(110px + env(safe-area-inset-bottom,0px));border-t
     <h3>Foundations</h3>
     <p><b>Broken Stars arrancó con Origins:</b> tres drops, los tres sold out.</p>
     <p>Foundations es la etapa en la que la marca se ordena en un sistema propio. Still Flying es el primer capítulo: dos piezas, una noche y camperas que se cuentan de a una.</p>
-    <div class="road"><span>Origins</span><span class="now">Foundations</span><span class="lock" aria-label="próximamente"><i aria-hidden="true">Xqrvtnm</i></span><span class="lock" aria-label="próximamente"><i aria-hidden="true">Wplkzsd</i></span><span class="lock" aria-label="próximamente"><i aria-hidden="true">Mbvhq</i></span><span class="soon">coming soon</span></div>
+    <div class="road"><a class="past" href="origins.html">Origins ↗</a><span class="now">Foundations</span><span class="lock" aria-label="próximamente"><i aria-hidden="true">Xqrvtnm</i></span><span class="lock" aria-label="próximamente"><i aria-hidden="true">Wplkzsd</i></span><span class="lock" aria-label="próximamente"><i aria-hidden="true">Mbvhq</i></span><span class="soon">coming soon</span></div>
   </div>
 </section>
 
