@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="FOUNDATIONS 01 · Still Flying. Campera Alpheratz numerada y Sweater Nova. Elegí tu número.">
+<meta property="og:title" content="Broken Stars · Still Flying">
+<meta property="og:description" content="Camperas numeradas, sin segunda tirada. Elegí tu número.">
+<meta property="og:image" content="img/campera_frente.jpg">
+<meta property="og:type" content="website">
+<link rel="icon" href="img/logo_broken.png">
+<style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+<title>Broken Stars · Still Flying</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: noche en Puerto Madero. Secciones fijas que avanzan con el scroll, una idea por pantalla, grilla de números como momento de compra. */
+:root{
+  --night:#0c0b0a;      /* fondo: negro lavado, no azul */
+  --ink:#16140f;        /* superficies */
+  --raw:#efe8d8;        /* crudo de las etiquetas */
+  --raw-dim:#a39d90;    /* texto secundario */
+  --line:#2c2924;       /* filetes */
+  --amber:#e8a24a;      /* luz de la escalera naranja */
+  --sold:#4a4640;
+  --f-display:"Archivo","Arial Narrow",Helvetica,sans-serif;
+  --f-body:"Archivo",Helvetica,Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--night);color:var(--raw);font-family:var(--f-body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--night)}
+img{display:block;max-width:100%}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+.mono{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.dim{color:var(--raw-dim)}
+.gutter{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+
+/* header */
+.top{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding-block:14px;background:linear-gradient(180deg,rgba(12,11,10,.75),transparent)}
+.brand{font-family:var(--f-display);font-weight:700;font-stretch:125%;font-size:13px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none}
+
+/* motor de scroll: cada .scrolly expone --p de 0 a 1 */
+.scrolly{position:relative;--p:1}
+.js .scrolly{height:var(--len,260vh)}
+.stage{position:relative;min-height:88svh;display:grid;place-items:center;overflow:hidden}
+.js .stage{position:sticky;top:0;height:100svh;min-height:0}
+
+/* 1 · constelación */
+#sky canvas{position:absolute;inset:0;width:100%;height:100%}
+.sky-copy{position:relative;z-index:2;text-align:center;display:grid;gap:18px;padding-inline:20px}
+.sky-copy h1{margin:0;font-family:var(--f-display);font-weight:800;font-stretch:125%;font-size:clamp(40px,10vw,128px);line-height:.86;letter-spacing:-.02em;text-transform:uppercase;text-wrap:balance;
+  opacity:clamp(0,calc(var(--p)*3 - .6),1);transform:translateY(calc((1 - var(--p))*24px))}
+.sky-copy .mono{opacity:clamp(.35,calc(var(--p)*2),1)}
+.hint{position:absolute;bottom:calc(28px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);opacity:calc(1 - var(--p)*3)}
+
+/* tomas con zoom: la foto final se recorre con cámara */
+.zoomer{position:absolute;inset:0;overflow:hidden;background:var(--night)}
+.zoomer img.z{position:absolute;left:0;top:0;max-width:none;transform-origin:0 0;will-change:transform}
+.zoomer img.back{opacity:0}
+.zoomer::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(12,11,10,.55) 0%,transparent 22%,transparent 50%,rgba(12,11,10,.85) 100%)}
+/* giro de la campera: secuencia de cuadros que sigue al scroll */
+.spin{position:absolute;inset:0;background:var(--night)}
+.spin canvas{position:absolute;inset:0;width:100%;height:100%}
+.spin::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(12,11,10,.55) 0%,transparent 18%,transparent 58%,rgba(12,11,10,.85) 100%)}
+.caps{position:absolute;z-index:2;left:max(20px,env(safe-area-inset-left,0px));right:max(20px,env(safe-area-inset-right,0px));bottom:calc(88px + env(safe-area-inset-bottom,0px));display:grid}
+.cap{grid-area:1/1;display:grid;gap:8px;align-content:end;transition:opacity .25s,transform .25s}
+.js .cap{opacity:0;transform:translateY(12px)}
+.js .cap.on{opacity:1;transform:none}
+.cap h2{margin:0;font-family:var(--f-display);font-weight:700;font-stretch:112%;font-size:clamp(34px,6vw,76px);line-height:.92;letter-spacing:-.01em;text-transform:uppercase;text-wrap:balance}
+.cap h2.light{font-weight:300;font-stretch:100%;text-transform:none;letter-spacing:-.02em}
+.cap h2.light b{font-weight:800}
+.cap p{margin:0;max-width:40ch}
+.tag{position:absolute;z-index:3;top:calc(64px + env(safe-area-inset-top,0px));left:max(20px,env(safe-area-inset-left,0px));border:1px dashed var(--amber);color:var(--amber);padding:6px 10px;background:rgba(12,11,10,.7)}
+.brand img{height:22px;width:auto;display:block}
+
+/* 4 · número */
+.counter{text-align:center;display:grid;gap:14px;padding-inline:20px}
+.counter .n{font-family:var(--f-display);font-weight:800;font-stretch:62%;font-size:clamp(150px,42vw,440px);line-height:.8;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--raw)}
+.counter .n span{color:var(--amber);font-stretch:100%;font-size:.22em;vertical-align:top;margin-right:.08em;font-weight:500}
+.counter h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(22px,3vw,34px)}
+
+/* grilla de números */
+.picker{padding-block:72px 120px;display:grid;gap:28px;max-width:1180px;margin:0 auto}
+.picker-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.picker-head h2{margin:0;font-family:var(--f-display);font-weight:700;font-stretch:112%;font-size:clamp(30px,5vw,56px);line-height:.92;text-transform:uppercase}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font:inherit;font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;background:transparent;color:var(--raw);border:1px solid var(--line);padding:8px 14px;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--raw);background:var(--raw);color:var(--night)}
+.picker-body{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;align-items:start}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
+.num{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums;aspect-ratio:1;border:1px solid var(--line);background:var(--ink);color:var(--raw);cursor:pointer;display:grid;place-items:center;transition:border-color .15s,background .15s}
+.num:hover{border-color:var(--raw-dim)}
+.num[data-sold="1"]{color:var(--sold);background:transparent;text-decoration:line-through;cursor:not-allowed}
+.num.off{opacity:.18}
+.num[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:var(--night)}
+.panel{position:sticky;top:calc(70px + env(safe-area-inset-top,0px));border:1px solid var(--line);background:var(--ink);padding:22px;display:grid;gap:16px}
+.panel .sel{font-family:var(--f-display);font-weight:800;font-stretch:62%;font-size:96px;line-height:.85;font-variant-numeric:tabular-nums}
+.panel dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 16px}
+.panel dt{color:var(--raw-dim)}
+.panel dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.btn{display:block;text-align:center;text-decoration:none;font-family:var(--f-display);font-weight:700;font-stretch:112%;text-transform:uppercase;letter-spacing:.04em;background:var(--raw);color:var(--night);padding:14px 18px;border:0;cursor:pointer}
+.btn[aria-disabled="true"]{background:var(--line);color:var(--raw-dim);pointer-events:none}
+.sizes{display:flex;gap:8px;flex-wrap:wrap}
+.size{font:inherit;font-family:var(--f-mono);font-size:13px;letter-spacing:.06em;min-width:52px;padding:10px 12px;background:transparent;color:var(--raw);border:1px solid var(--line);cursor:pointer}
+.size:hover{border-color:var(--raw-dim)}
+.size[aria-pressed="true"]{background:var(--raw);color:var(--night);border-color:var(--raw)}
+.size:disabled{color:var(--sold);text-decoration:line-through;cursor:not-allowed}
+.wa{display:block;text-align:center;font-size:13px;color:var(--raw-dim);text-decoration:underline;text-underline-offset:3px}
+.wa[hidden]{display:none}
+.story{max-width:46ch;margin:0 auto;color:var(--raw-dim)}
+.buy-sw{max-width:520px;margin:0 auto;padding-block:56px 24px}
+.legal{display:grid;gap:10px;justify-items:start}
+.legal a{color:var(--raw-dim)}
+.note{border-left:2px solid var(--amber);padding-left:12px;font-size:13px;color:var(--raw-dim)}
+
+/* galería */
+.gallery{padding-block:96px 40px;display:grid;gap:20px}
+.gallery-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.gallery-head h2{margin:0;font-family:var(--f-display);font-weight:300;font-size:clamp(28px,4vw,48px);line-height:1}
+.strip{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:12px;scrollbar-width:thin}
+.strip figure{margin:0;flex:0 0 min(64vw,340px);scroll-snap-align:start;display:grid;gap:8px}
+.strip img{width:100%;aspect-ratio:4/5;object-fit:cover;background:var(--ink)}
+
+/* talles + foundations */
+.duo{padding-block:80px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:48px;max-width:1180px;margin:0 auto}
+.duo h3{margin:0 0 18px;font-family:var(--f-display);font-weight:700;font-stretch:112%;text-transform:uppercase;font-size:22px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:12px 0;border-bottom:1px solid var(--line)}
+th{font-family:var(--f-mono);font-weight:400;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--raw-dim)}
+.found p{margin:0 0 14px;max-width:52ch;color:var(--raw-dim)}
+.found p b{color:var(--raw);font-weight:600}
+.road{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.road span{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:6px 10px;border:1px solid var(--line);color:var(--raw-dim)}
+.road span.now{border-color:var(--amber);color:var(--amber)}
+footer{padding-block:40px calc(110px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* barra de compra fija */
+.buybar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;gap:8px;justify-content:center;padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));background:linear-gradient(0deg,var(--night) 55%,transparent)}
+.buybar a{flex:1 1 0;max-width:280px;text-align:center;text-decoration:none;padding:13px 10px;font-family:var(--f-display);font-weight:700;font-stretch:110%;text-transform:uppercase;font-size:13px;letter-spacing:.05em}
+.buybar .a{background:var(--raw);color:var(--night)}
+.buybar .b{border:1px solid var(--raw);color:var(--raw)}
+
+/* prototipo */
+.proto{position:fixed;top:calc(52px + env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));z-index:45;font-family:var(--f-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--night);background:var(--amber);padding:4px 8px}
+
+@media (max-width:860px){
+  .picker-body{grid-template-columns:minmax(0,1fr)}
+  .panel{position:static}
+  .duo{grid-template-columns:minmax(0,1fr)}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(44px,1fr))}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .js .scrolly{height:auto}
+  .js .stage{position:relative;height:auto;min-height:88svh}
+  .scrolly{--p:1!important}
+  .js .cap{opacity:0}
+  .js .cap:first-child{opacity:1;transform:none}
+}
+</style>
+
+<script>document.documentElement.classList.add('js')</script>
+
+<header class="top gutter">
+  <a class="brand" href="#sky"><img src="img/logo_broken.png" width="780" height="189" alt="Broken Stars"></a>
+  <span class="mono">Foundations 01</span>
+</header>
+<div class="proto" title="Visuales provisorios">prototipo</div>
+
+<!-- 1 · Pegaso -->
+<section class="scrolly" id="sky" style="--len:220vh">
+  <div class="stage">
+    <canvas id="stars" aria-hidden="true"></canvas>
+    <div class="sky-copy">
+      <span class="mono dim">Foundations 01 · constelación de Pegaso</span>
+      <h1>Still<br>Flying</h1>
+      <span class="mono dim">dos piezas · 100 camperas numeradas</span>
+    </div>
+    <span class="hint mono dim">bajá</span>
+  </div>
+</section>
+
+<!-- 2 · Campera: una toma continua con zoom -->
+<section class="scrolly" id="campera" style="--len:420vh">
+  <div class="stage">
+    <div class="spin" data-frames="88" data-src="giro/c{n}.webp" data-hold="0.3,0.86">
+      <canvas role="img" aria-label="Campera Alpheratz girando de frente a espalda: estrella rota en la manga derecha, wordmark Broken Stars en el pecho y espalda lisa"></canvas>
+    </div>
+    <div class="caps">
+      <div class="cap" data-show="0,0.15">
+        <span class="mono dim">Alpheratz · la estrella que une Pegaso con Andrómeda</span>
+        <h2>Campera Alpheratz</h2>
+        <p class="dim">Denim negro lavado. Estrella rota en la manga, wordmark en el pecho y un número que es solo tuyo.</p>
+      </div>
+      <div class="cap" data-show="0.15,0.32">
+        <span class="mono dim">manga derecha · parche bordado</span>
+        <h2 class="light">una estrella<br><b>en la manga</b></h2>
+      </div>
+      <div class="cap" data-show="0.37,0.56">
+        <span class="mono dim">pecho · wordmark bordado</span>
+        <h2 class="light">broken.<br><b>before the stars come out</b></h2>
+      </div>
+      <div class="cap" data-show="0.86,1.01">
+        <span class="mono dim">espalda</span>
+        <h2 class="light">limpia. <b>que hable el frente.</b></h2>
+      </div>
+    </div>
+      </div>
+</section>
+
+<!-- 3 · Número -->
+<section class="scrolly" id="numero" style="--len:200vh">
+  <div class="stage">
+    <div class="counter">
+      <span class="mono dim">100 camperas · cada una con su número</span>
+      <div class="n" id="counter"><span>Nº</span>100</div>
+      <h2>no hay dos iguales. elegí el tuyo.</h2>
+      <p class="story">Numeradas, sin segunda tirada. Cada campera lleva su número en una etiqueta interior, y cuando se terminan no vuelven.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Grilla -->
+<section class="picker gutter" id="elegi" aria-labelledby="picker-title">
+  <div class="picker-head">
+    <div>
+      <span class="mono dim">campera alpheratz · 100 números</span>
+      <h2 id="picker-title">Elegí tu número</h2>
+    </div>
+    <span class="mono dim">tachados: ya tienen dueño</span>
+  </div>
+  <div class="picker-body">
+    <div class="grid" id="grid" aria-label="Números de campera"></div>
+    <aside class="panel" aria-live="polite">
+      <span class="mono dim">tu campera</span>
+      <div class="sel" id="selNum">Nº —</div>
+      <dl>
+        <dt>precio</dt><dd>$137.400</dd>
+        <dt>6 cuotas sin interés</dt><dd>$22.900</dd>
+        <dt>transferencia −15%</dt><dd>$116.790</dd>
+      </dl>
+      <div class="sizes" role="group" aria-label="Talle de la campera" id="jSizes">
+        <button class="size" type="button" data-v="1629557325" data-opt="1" aria-pressed="false">talle 1</button>
+        <button class="size" type="button" data-v="1629557326" data-opt="2" aria-pressed="false">talle 2</button>
+      </div>
+      <a class="btn" id="buy" href="#elegi" aria-disabled="true">elegí número y talle</a>
+      <a class="wa" id="wa" target="_blank" rel="noopener" hidden>después de pagar, confirmá tu número por WhatsApp</a>
+      <p class="note">El número lo confirmamos por WhatsApp después de la compra. Si justo se va, te ofrecemos el más cercano.</p>
+    </aside>
+  </div>
+</section>
+
+<!-- 4 · Sweater -->
+<section class="scrolly" id="sweater" style="--len:300vh">
+  <div class="stage">
+    <div class="zoomer" data-w="1744" data-h="2336"
+      data-keys='[[0,880,1220,1],[0.2,880,1220,1],[0.5,1056,990,3.4],[0.7,1056,990,3.4],[0.92,880,1220,1],[1,880,1220,1]]'>
+      <img class="z" src="img/sweater_frente.jpg" width="1744" height="2336" alt="Sweater Nova de tejido trenzado gris sobre piso de cemento, con monograma BS en el pecho">
+    </div>
+    <div class="caps">
+      <div class="cap" data-show="0,0.3">
+        <span class="mono dim">tejido trenzado · gris lavado</span>
+        <h2>Sweater Nova</h2>
+        <p class="dim">$117.600 o 6 cuotas de $19.600. 15% off por transferencia.</p>
+      </div>
+      <div class="cap" data-show="0.38,0.78">
+        <span class="mono dim">pecho izquierdo · bordado directo · 6 × 3,5 cm</span>
+        <h2 class="light"><b>BS</b> en el pecho</h2>
+      </div>
+      <div class="cap" data-show="0.85,1.01">
+        <span class="mono dim">talles S · M · L · XL</span>
+        <h2 class="light">el que va <b>con todo</b></h2>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Comprar sweater -->
+<section class="buy-sw gutter" id="comprar-sweater" aria-labelledby="sw-title">
+  <aside class="panel" aria-live="polite">
+    <span class="mono dim">sweater nova</span>
+    <h3 id="sw-title" style="margin:0;font-family:var(--f-display);font-weight:700;font-stretch:112%;text-transform:uppercase;font-size:28px">Elegí tu talle</h3>
+    <dl>
+      <dt>precio</dt><dd>$117.600</dd>
+      <dt>6 cuotas sin interés</dt><dd>$19.600</dd>
+      <dt>transferencia −15%</dt><dd>$99.960</dd>
+    </dl>
+    <div class="sizes" role="group" aria-label="Talle del sweater" id="sSizes">
+      <button class="size" type="button" data-v="1629574388" data-opt="S" aria-pressed="false">S</button>
+      <button class="size" type="button" data-v="1629574389" data-opt="M" aria-pressed="false">M</button>
+      <button class="size" type="button" data-v="1629574390" data-opt="L" aria-pressed="false">L</button>
+      <button class="size" type="button" data-v="1629574391" data-opt="XL" aria-pressed="false">XL</button>
+    </div>
+    <a class="btn" id="buySw" href="#comprar-sweater" aria-disabled="true">elegí un talle</a>
+  </aside>
+</section>
+
+<!-- Galería -->
+<section class="gallery gutter" id="noche">
+  <div class="gallery-head">
+    <h2>Puerto Madero, de noche</h2>
+    <span class="mono dim">shoot · 21.10.2026 · ph josé</span>
+  </div>
+  <div class="strip" tabindex="0" aria-label="Fotos de la campaña">
+    <figure><img loading="lazy" src="img/g_2034.jpg" alt="Luca de noche con la estrella de la manga a la vista"><figcaption class="mono dim">campera</figcaption></figure>
+    <figure><img loading="lazy" src="img/g_2346.jpg" alt="Male sentada contra el metal con la campera"><figcaption class="mono dim">campera</figcaption></figure>
+    <figure><img loading="lazy" src="img/g_2070.jpg" alt="Luca en la escalera iluminada con la campera"><figcaption class="mono dim">campera</figcaption></figure>
+    <figure><img loading="lazy" src="img/g_2258.jpg" alt="Male con la campera entre los edificios iluminados"><figcaption class="mono dim">campera</figcaption></figure>
+    <figure><img loading="lazy" src="img/g_1930.jpg" alt="Luca con el sweater"><figcaption class="mono dim">sweater</figcaption></figure>
+    <figure><img loading="lazy" src="img/g_2107.jpg" alt="Male con el sweater en la escalera iluminada"><figcaption class="mono dim">sweater</figcaption></figure>
+    <figure><img loading="lazy" src="img/g_2129.jpg" alt="Luca con la campera junto a la columna blanca"><figcaption class="mono dim">campera</figcaption></figure>
+    <figure><img loading="lazy" src="img/g_2340.jpg" alt="Male contra el metal con la campera"><figcaption class="mono dim">campera</figcaption></figure>
+    <figure><img loading="lazy" src="img/g_2122.jpg" alt="Luca con la campera de noche"><figcaption class="mono dim">campera</figcaption></figure>
+    <figure><img loading="lazy" src="img/g_2272.jpg" alt="Male con la campera frente a los edificios"><figcaption class="mono dim">campera</figcaption></figure>
+  </div>
+</section>
+
+<!-- Talles + Foundations -->
+<section class="duo gutter" id="talles">
+  <div>
+    <h3>Cómo calza</h3>
+    <div style="overflow-x:auto">
+    <table>
+      <caption class="mono dim" style="text-align:left;padding-bottom:6px">campera alpheratz · cm</caption>
+      <thead><tr><th>talle</th><th>ancho</th><th>largo</th><th>manga</th><th>hombro</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>62</td><td>62</td><td>78</td><td>55</td></tr>
+        <tr><td>2</td><td>65</td><td>64</td><td>80</td><td>57</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div style="overflow-x:auto;margin-top:28px">
+    <table>
+      <caption class="mono dim" style="text-align:left;padding-bottom:6px">sweater nova · cm</caption>
+      <thead><tr><th>talle</th><th>ancho</th><th>largo</th><th>manga</th><th>hombro</th></tr></thead>
+      <tbody>
+        <tr><td>S</td><td>61</td><td>65</td><td>63</td><td>59</td></tr>
+        <tr><td>M</td><td>63</td><td>67</td><td>64</td><td>60</td></tr>
+        <tr><td>L</td><td>65</td><td>69</td><td>65</td><td>61</td></tr>
+        <tr><td>XL</td><td>67</td><td>71</td><td>66</td><td>62</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="note" style="margin-top:16px">Ancho de axila a axila, largo del hombro al ruedo, manga de la costura del hombro al puño. Luca mide 1,77 m y lleva campera talle 2 y sweater L. Male mide 1,59 m y lleva campera talle 1 y sweater M.</p>
+  </div>
+  <div class="found">
+    <h3>Foundations</h3>
+    <p><b>Broken Stars arrancó con Origins:</b> tres drops, los dos primeros agotados.</p>
+    <p>Foundations es la etapa en la que la marca se ordena en un sistema propio. Still Flying es el primer capítulo: dos piezas, una noche y camperas que se cuentan de a una.</p>
+    <div class="road"><span>Origins</span><span class="now">Foundations</span><span>Refinement</span><span>Expansion</span><span>Legacy</span></div>
+  </div>
+</section>
+
+<footer class="gutter">
+  <div class="legal mono dim">
+    <span>Broken Stars · Buenos Aires · CUIT 23-44362279-9</span>
+    <span>WhatsApp <a href="https://wa.me/5491140277055" target="_blank" rel="noopener">+54 9 11 4027-7055</a> · brokenstars.ar@gmail.com</span>
+  </div>
+  <div class="legal mono dim">
+    <a href="https://www.brokenstars.com.ar/cambios-y-devoluciones/" target="_blank" rel="noopener">Cambios y devoluciones</a>
+    <a href="https://www.brokenstars.com.ar/contacto/?order_cancellation_without_id=true" target="_blank" rel="noopener">Botón de arrepentimiento</a>
+    <a href="https://www.argentina.gob.ar/produccion/defensadelconsumidor/formulario" target="_blank" rel="noopener">Defensa de las y los consumidores</a>
+    <a href="https://instagram.com/brokenstars.ar" target="_blank" rel="noopener">@brokenstars.ar</a>
+  </div>
+</footer>
+
+<nav class="buybar" aria-label="Comprar">
+  <a class="a" href="#elegi">Elegí tu número</a>
+  <a class="b" href="#comprar-sweater">Sweater Nova</a>
+</nav>
+
+<script>
+(function(){
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const sections = [...document.querySelectorAll('.scrolly')];
+  const counter = document.getElementById('counter');
+  let ticking = false;
+
+  function update(){
+    ticking = false;
+    const vh = innerHeight;
+    for (const s of sections){
+      const r = s.getBoundingClientRect();
+      const span = r.height - vh;
+      const p = span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 1;
+      s.style.setProperty('--p', reduce ? 1 : p.toFixed(4));
+      if (s.id === 'sky') drawSky(reduce ? 1 : p);
+      const z = s.querySelector('.zoomer');
+      if (z) runZoom(z, reduce ? 0 : p);
+      const sp = s.querySelector('.spin');
+      if (sp) runSpin(sp, reduce ? 0 : p);
+      s.querySelectorAll('.cap').forEach(c => {
+        const [a,b] = c.dataset.show.split(',').map(Number);
+        const pp = reduce ? 0 : p;
+        c.classList.toggle('on', pp >= a && pp < b);
+      });
+      if (s.id === 'numero' && !reduce){
+        const n = Math.round(1 + Math.min(1, p*1.15) * 99);
+        counter.lastChild.nodeValue = String(n).padStart(3, '0');
+      }
+    }
+  }
+  addEventListener('scroll', () => { if (!ticking){ ticking = true; requestAnimationFrame(update); } }, {passive:true});
+  addEventListener('resize', () => { sizeSky(); update(); });
+
+
+  /* toma con zoom: interpola foco (px de la foto) y zoom entre keyframes */
+  const ease = t => t<.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+  function fit(img, W, H){
+    const w = +(img.dataset.w || img.closest('.zoomer').dataset.w), h = +(img.dataset.h || img.closest('.zoomer').dataset.h);
+    const s0 = Math.max(W/w, H/h);
+    return {w, h, s0, ox:(W - w*s0)/2, oy:(H - h*s0)/2};
+  }
+  function runZoom(zm, p){
+    const W = zm.clientWidth, H = zm.clientHeight; if (!W) return;
+    const keys = zm._keys || (zm._keys = JSON.parse(zm.dataset.keys));
+    let i = 0; while (i < keys.length-2 && p > keys[i+1][0]) i++;
+    const [p0,x0,y0,z0] = keys[i], [p1,x1,y1,z1] = keys[i+1];
+    const t = ease(Math.min(1, Math.max(0, (p - p0) / ((p1 - p0) || 1))));
+    const main = zm.querySelector('img.z:not(.back)'), f = fit(main, W, H);
+    const zmax = Math.max(1, 1.4 / f.s0);   /* no ampliar más de 1,4x la resolución real */
+    const fx = x0 + (x1-x0)*t, fy = y0 + (y1-y0)*t, zz = Math.min(zmax, z0 + (z1-z0)*t);
+    const sc = f.s0*zz;
+    main.style.width = f.w + 'px'; main.style.height = f.h + 'px';
+    main.style.transform = `translate(${W/2 - fx*sc}px, ${H/2 - fy*sc}px) scale(${sc})`;
+    /* sin dejar bordes vacíos: limitar el paneo a los bordes de la foto */
+    const tx = Math.min(0, Math.max(W - f.w*sc, W/2 - fx*sc)), ty = Math.min(0, Math.max(H - f.h*sc, H/2 - fy*sc));
+    main.style.transform = `translate(${tx}px, ${ty}px) scale(${sc})`;
+    const back = zm.querySelector('img.back');
+    if (back){
+      const fb = fit(back, W, H), [a,b] = back.dataset.fade.split(',').map(Number);
+      back.style.width = fb.w+'px'; back.style.height = fb.h+'px';
+      back.style.transform = `translate(${fb.ox}px, ${fb.oy}px) scale(${fb.s0})`;
+      back.style.opacity = Math.min(1, Math.max(0, (p - a) / (b - a)));
+    }
+  }
+
+
+  /* giro: el scroll elige el cuadro; arranca quieto de frente y termina quieto de espalda */
+  function runSpin(el, p){
+    if (!el._f){
+      const n = +el.dataset.frames, tpl = el.dataset.src;
+      el._f = Array.from({length:n}, (_,i) => { const im = new Image(); im.decoding = 'async';
+        im.onload = () => { if (el._want === i) runSpin(el, el._p); };
+        im.src = tpl.replace('{n}', String(i).padStart(3,'0')); return im; });
+      el._cv = el.querySelector('canvas'); el._cx = el._cv.getContext('2d');
+    }
+    el._p = p;
+    const [h0,h1] = el.dataset.hold.split(',').map(Number), n = el._f.length;
+    const t = Math.min(1, Math.max(0, (p - h0) / (h1 - h0)));
+    let i = Math.round(t * (n - 1)); el._want = i;
+    while (i > 0 && !(el._f[i].complete && el._f[i].naturalWidth)) i--;
+    const im = el._f[i]; if (!im.complete || !im.naturalWidth) return;
+    const cv = el._cv, cx = el._cx, d = Math.min(2, devicePixelRatio || 1);
+    const W = cv.clientWidth, H = cv.clientHeight; if (!W) return;
+    if (cv.width !== Math.round(W*d) || cv.height !== Math.round(H*d)){ cv.width = Math.round(W*d); cv.height = Math.round(H*d); }
+    cx.setTransform(d,0,0,d,0,0);
+    cx.globalCompositeOperation = 'source-over';
+    cx.fillStyle = getComputedStyle(el).backgroundColor; cx.fillRect(0,0,W,H);
+    const sc = Math.min(W / im.naturalWidth, H * 0.84 / im.naturalHeight);
+    const w = im.naturalWidth*sc, h = im.naturalHeight*sc;
+    /* el negro del video se funde con el fondo de la página */
+    cx.globalCompositeOperation = 'lighten';
+    cx.drawImage(im, (W - w)/2, H*0.05, w, h);
+    cx.globalCompositeOperation = 'source-over';
+  }
+
+  /* Pegaso: ascensión recta (h) y declinación (°) aproximadas */
+  const S = {
+    alpheratz:[24.14,29.1], scheat:[23.06,28.1], markab:[23.08,15.2], algenib:[24.22,15.2],
+    homam:[22.69,10.8], biham:[22.17,6.2], enif:[21.74,9.9],
+    matar:[22.72,30.2], pi:[22.17,33.2], lambda:[22.78,23.6], mu:[22.83,24.6], iota:[22.12,25.3], kappa:[21.74,25.6]
+  };
+  const L = [['markab','scheat'],['scheat','alpheratz'],['alpheratz','algenib'],['algenib','markab'],
+             ['markab','homam'],['homam','biham'],['biham','enif'],
+             ['scheat','matar'],['matar','pi'],['scheat','mu'],['mu','lambda'],['lambda','iota'],['iota','kappa']];
+  const cv = document.getElementById('stars'), cx = cv.getContext('2d');
+  let W=0,H=0,dpr=1, dust=[];
+  function sizeSky(){
+    dpr = Math.min(2, devicePixelRatio || 1);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W*dpr; cv.height = H*dpr;
+    let seed = 7; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
+    dust = Array.from({length: Math.round(W*H/5200)}, () => [rnd()*W, rnd()*H, rnd()*1.1+.2, rnd()]);
+  }
+  function proj(key){
+    const [ra,dec] = S[key];
+    const minRa=21.6, maxRa=24.35, minD=4, maxD=35;
+    const k = 14; /* grados por hora de ascensión recta a esta declinación */
+    const sc = Math.min(W*0.82/(maxRa-minRa), H*0.72*k/(maxD-minD));
+    const w = (maxRa-minRa)*sc, h = (maxD-minD)*sc/k;
+    const x = (W + w)/2 - (ra-minRa)*sc;          /* el cielo se ve con el este a la izquierda */
+    const y = (H + h)/2 - (dec-minD)*sc/k;
+    return [x,y];
+  }
+  function drawSky(p){
+    if (!W) return;
+    cx.setTransform(dpr,0,0,dpr,0,0);
+    cx.clearRect(0,0,W,H);
+    for (const [x,y,r,t] of dust){
+      cx.globalAlpha = .18 + .4*t; cx.fillStyle = '#efe8d8';
+      cx.beginPath(); cx.arc(x,y,r,0,7); cx.fill();
+    }
+    cx.globalAlpha = 1;
+    const prog = Math.min(1, p*1.6);
+    cx.strokeStyle = 'rgba(239,232,216,.55)'; cx.lineWidth = 1;
+    L.forEach(([a,b],i) => {
+      const t = Math.min(1, Math.max(0, prog*L.length - i));
+      if (t <= 0) return;
+      const [x1,y1]=proj(a),[x2,y2]=proj(b);
+      cx.beginPath(); cx.moveTo(x1,y1); cx.lineTo(x1+(x2-x1)*t, y1+(y2-y1)*t); cx.stroke();
+    });
+    for (const k in S){
+      const [x,y] = proj(k), main = k==='alpheratz';
+      cx.fillStyle = main ? '#e8a24a' : '#efe8d8';
+      cx.beginPath(); cx.arc(x,y, main ? 4 : 2.2, 0, 7); cx.fill();
+      if (main){
+        cx.globalAlpha = Math.min(1, Math.max(0, p*3-1.2));
+        cx.font = '500 11px "IBM Plex Mono", monospace'; cx.fillStyle = '#e8a24a';
+        cx.fillText('ALPHERATZ', x+10, y-8);
+        cx.globalAlpha = 1;
+      }
+    }
+  }
+
+  /* Compra: la web arma el mismo pedido que el botón de Tiendanube y lo manda al carrito */
+  const STORE = 'https://www.brokenstars.com.ar';           /* al migrar: https://tienda.brokenstars.com.ar */
+  const PRODUCT = {campera:{id:'377783252', url:'/productos/campera-still-flying-ajn6s/'}, sweater:{id:'377788127', url:'/productos/sweater-still-flying-dpxp8/'}};
+  const WA = '5491140277055';
+  const inArtifact = /claude|anthropic/.test(location.hostname);
+  function goBuy(prod, btn){
+    const v = btn.dataset.v, opt = btn.dataset.opt, P = PRODUCT[prod];
+    if (inArtifact){ return {href: STORE + P.url + '?variant=' + v}; }
+    const f = document.createElement('form'); f.method = 'post'; f.action = STORE + '/comprar/';
+    for (const [k,val] of [['add_to_cart',P.id],['variant_id',v],['variation[0]',opt],['quantity','1']]){
+      const i = document.createElement('input'); i.type='hidden'; i.name=k; i.value=val; f.appendChild(i);
+    }
+    document.body.appendChild(f); f.submit(); return null;
+  }
+  function sizeGroup(el, onPick){
+    el.addEventListener('click', e => {
+      const b = e.target.closest('.size'); if (!b || b.disabled) return;
+      el.querySelectorAll('.size').forEach(x => x.setAttribute('aria-pressed', x===b ? 'true':'false'));
+      onPick(b);
+    });
+  }
+
+  /* Grilla: 1 a 100. Tachados: los que ya tienen dueño. */
+  const grid = document.getElementById('grid');
+  const taken = new Set([1,27,70,71,81]);
+  const frag = document.createDocumentFragment();
+  for (let i=1;i<=100;i++){
+    const b = document.createElement('button');
+    b.type='button'; b.className='num'; b.id='n'+i; b.textContent = String(i);
+    if (taken.has(i)){ b.dataset.sold='1'; b.setAttribute('aria-disabled','true'); b.setAttribute('aria-label','Número '+i+', ya tiene dueño'); }
+    else { b.setAttribute('aria-pressed','false'); b.setAttribute('aria-label','Número '+i); }
+    frag.appendChild(b);
+  }
+  grid.appendChild(frag);
+  const selNum=document.getElementById('selNum'), buy=document.getElementById('buy'), wa=document.getElementById('wa');
+  let num=null, jSize=null;
+  function refreshJ(){
+    const ok = num && jSize;
+    buy.setAttribute('aria-disabled', ok ? 'false' : 'true');
+    buy.textContent = ok ? 'Comprar Nº ' + num + ' · talle ' + jSize.dataset.opt : (num ? 'elegí tu talle' : (jSize ? 'elegí tu número' : 'elegí número y talle'));
+    if (num){
+      wa.hidden = false;
+      wa.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent('hola! compré la campera alpheratz' + (jSize ? ' talle ' + jSize.dataset.opt : '') + ' y elegí el número ' + num);
+    }
+    if (ok && inArtifact){ buy.href = goBuy('campera', jSize).href; buy.target = '_blank'; buy.rel = 'noopener'; }
+  }
+  grid.addEventListener('click', e => {
+    const b = e.target.closest('.num'); if (!b || b.dataset.sold) return;
+    grid.querySelectorAll('[aria-pressed="true"]').forEach(x => x.setAttribute('aria-pressed','false'));
+    b.setAttribute('aria-pressed','true');
+    num = b.textContent; selNum.textContent = 'Nº ' + num; refreshJ();
+  });
+  sizeGroup(document.getElementById('jSizes'), b => { jSize = b; refreshJ(); });
+  buy.addEventListener('click', e => {
+    if (buy.getAttribute('aria-disabled') === 'true'){ e.preventDefault(); return; }
+    if (!inArtifact){ e.preventDefault(); goBuy('campera', jSize); }
+  });
+
+  const buySw = document.getElementById('buySw'); let sSize=null;
+  sizeGroup(document.getElementById('sSizes'), b => {
+    sSize = b; buySw.setAttribute('aria-disabled','false'); buySw.textContent = 'Comprar talle ' + b.dataset.opt;
+    if (inArtifact){ buySw.href = goBuy('sweater', b).href; buySw.target='_blank'; buySw.rel='noopener'; }
+  });
+  buySw.addEventListener('click', e => {
+    if (buySw.getAttribute('aria-disabled') === 'true'){ e.preventDefault(); return; }
+    if (!inArtifact){ e.preventDefault(); goBuy('sweater', sSize); }
+  });
+
+  sizeSky(); update();
+  if (document.fonts) document.fonts.ready.then(update);
+})();
+</script>
+
+
+</body>
+</html>
