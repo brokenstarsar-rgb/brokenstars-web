@@ -10,6 +10,12 @@
 <meta property="og:type" content="website">
 <link rel="icon" href="img/logo_broken.png">
 <style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','4039294549619762');fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=4039294549619762&ev=PageView&noscript=1" alt=""></noscript>
 </head>
 <body>
 
@@ -544,7 +550,8 @@ footer{padding-block:40px calc(110px + env(safe-area-inset-bottom,0px));border-t
     for (const [k,val] of [['add_to_cart',P.id],['variant_id',v],['variation[0]',opt],['quantity','1']]){
       const i = document.createElement('input'); i.type='hidden'; i.name=k; i.value=val; f.appendChild(i);
     }
-    document.body.appendChild(f); f.submit(); return null;
+    try{ window.fbq && fbq('track','AddToCart',{content_ids:[P.id],content_type:'product',content_name:prod,value:prod==='campera'?137400:117600,currency:'ARS'}); }catch(e){}
+    document.body.appendChild(f); setTimeout(()=>f.submit(),300); return null;
   }
   function sizeGroup(el, onPick){
     el.addEventListener('click', e => {
@@ -600,6 +607,12 @@ footer{padding-block:40px calc(110px + env(safe-area-inset-bottom,0px));border-t
     if (!inArtifact){ e.preventDefault(); goBuy('sweater', sSize); }
   });
 
+  /* ViewContent una vez por producto, cuando se llega a su sección */
+  try{
+    const seen={};
+    const io=new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting){ const k=en.target.id; if(!seen[k] && window.fbq){ seen[k]=1; fbq('track','ViewContent',{content_ids:[k==='campera'?PRODUCT.campera.id:PRODUCT.sweater.id],content_type:'product',content_name:k}); } } }),{threshold:.4});
+    ['campera','sweater'].forEach(id=>{const el=document.getElementById(id); el && io.observe(el);});
+  }catch(e){}
   sizeSky(); update();
   if (document.fonts) document.fonts.ready.then(update);
 })();
