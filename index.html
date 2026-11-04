@@ -103,8 +103,7 @@ a{color:inherit}
 .chip[aria-pressed="true"]{border-color:var(--raw);background:var(--raw);color:var(--night)}
 .picker-body{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;align-items:start}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
-.num{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums;aspect-ratio:1;border:1px solid var(--line);background:var(--ink);color:var(--raw);cursor:pointer;display:grid;place-items:center;transition:border-color .15s,background .15s}
-.num:hover{border-color:var(--raw-dim)}
+.num{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums;aspect-ratio:1;border:1px solid var(--line);background:var(--ink);color:var(--raw);cursor:default;display:grid;place-items:center;transition:border-color .15s,background .15s}
 .num[data-sold="1"]{color:var(--sold);background:transparent;text-decoration:line-through;cursor:not-allowed}
 .num.off{opacity:.18}
 .num[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:var(--night)}
@@ -239,7 +238,7 @@ footer{padding-block:40px calc(110px + env(safe-area-inset-bottom,0px));border-t
   <div class="picker-head">
     <div>
       <span class="mono dim">campera alpheratz · 100 números</span>
-      <h2 id="picker-title">Elegí tu número</h2>
+      <h2 id="picker-title">Números disponibles</h2>
     </div>
     <span class="mono dim">tachados: ya tienen dueño</span>
   </div>
@@ -247,7 +246,7 @@ footer{padding-block:40px calc(110px + env(safe-area-inset-bottom,0px));border-t
     <div class="grid" id="grid" aria-label="Números de campera"></div>
     <aside class="panel" aria-live="polite">
       <span class="mono dim">tu campera</span>
-      <div class="sel" id="selNum">Nº —</div>
+      <div class="sel" id="selNum">talle —</div>
       <dl>
         <dt>precio</dt><dd>$137.400</dd>
         <dt>6 cuotas sin interés</dt><dd>$22.900</dd>
@@ -257,9 +256,9 @@ footer{padding-block:40px calc(110px + env(safe-area-inset-bottom,0px));border-t
         <button class="size" type="button" data-v="1629557325" data-opt="1" aria-pressed="false">talle 1</button>
         <button class="size" type="button" data-v="1629557326" data-opt="2" aria-pressed="false">talle 2</button>
       </div>
-      <a class="btn" id="buy" href="#elegi" aria-disabled="true">elegí número y talle</a>
-      <a class="wa" id="wa" target="_blank" rel="noopener" hidden>después de pagar, confirmá tu número por WhatsApp</a>
-      <p class="note">El número lo confirmamos por WhatsApp después de la compra. Si justo se va, te ofrecemos el más cercano.</p>
+      <a class="btn" id="buy" href="#elegi" aria-disabled="true">elegí tu talle</a>
+      <a class="wa" id="wa" target="_blank" rel="noopener" hidden>después de pagar, elegí tu número por WhatsApp</a>
+      <p class="note">Elegís el talle acá. El número lo elegís por WhatsApp después de pagar, entre los que siguen libres.</p>
     </aside>
   </div>
 </section>
@@ -561,31 +560,26 @@ footer{padding-block:40px calc(110px + env(safe-area-inset-bottom,0px));border-t
   const taken = new Set([1,27,70,71,81]);
   const frag = document.createDocumentFragment();
   for (let i=1;i<=100;i++){
-    const b = document.createElement('button');
-    b.type='button'; b.className='num'; b.id='n'+i; b.textContent = String(i);
-    if (taken.has(i)){ b.dataset.sold='1'; b.setAttribute('aria-disabled','true'); b.setAttribute('aria-label','Número '+i+', ya tiene dueño'); }
-    else { b.setAttribute('aria-pressed','false'); b.setAttribute('aria-label','Número '+i); }
+    const b = document.createElement('span');
+    b.className='num'; b.id='n'+i; b.textContent = String(i);
+    if (taken.has(i)){ b.dataset.sold='1'; b.setAttribute('aria-label','Número '+i+', ya tiene dueño'); }
+    else { b.setAttribute('aria-label','Número '+i+', libre'); }
     frag.appendChild(b);
   }
   grid.appendChild(frag);
   const selNum=document.getElementById('selNum'), buy=document.getElementById('buy'), wa=document.getElementById('wa');
-  let num=null, jSize=null;
+  let jSize=null;
   function refreshJ(){
-    const ok = num && jSize;
+    const ok = !!jSize;
     buy.setAttribute('aria-disabled', ok ? 'false' : 'true');
-    buy.textContent = ok ? 'Comprar Nº ' + num + ' · talle ' + jSize.dataset.opt : (num ? 'elegí tu talle' : (jSize ? 'elegí tu número' : 'elegí número y talle'));
-    if (num){
+    buy.textContent = ok ? 'Comprar talle ' + jSize.dataset.opt : 'elegí tu talle';
+    if (ok){
+      selNum.textContent = 'talle ' + jSize.dataset.opt;
       wa.hidden = false;
-      wa.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent('hola! compré la campera alpheratz' + (jSize ? ' talle ' + jSize.dataset.opt : '') + ' y elegí el número ' + num);
+      wa.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent('hola! compré la campera alpheratz talle ' + jSize.dataset.opt + ' y quiero elegir mi número');
     }
     if (ok && inArtifact){ buy.href = goBuy('campera', jSize).href; buy.target = '_blank'; buy.rel = 'noopener'; }
   }
-  grid.addEventListener('click', e => {
-    const b = e.target.closest('.num'); if (!b || b.dataset.sold) return;
-    grid.querySelectorAll('[aria-pressed="true"]').forEach(x => x.setAttribute('aria-pressed','false'));
-    b.setAttribute('aria-pressed','true');
-    num = b.textContent; selNum.textContent = 'Nº ' + num; refreshJ();
-  });
   sizeGroup(document.getElementById('jSizes'), b => { jSize = b; refreshJ(); });
   buy.addEventListener('click', e => {
     if (buy.getAttribute('aria-disabled') === 'true'){ e.preventDefault(); return; }
