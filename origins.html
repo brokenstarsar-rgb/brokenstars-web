@@ -33,7 +33,8 @@ a{color:inherit}
 .wrap{max-width:1180px;margin:0 auto;padding:0 max(20px,env(safe-area-inset-left,0px)) 0 max(20px,env(safe-area-inset-right,0px))}
 .top{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:14px 0;background:linear-gradient(180deg,rgba(12,11,10,.95),rgba(12,11,10,.7))}
 .top a{text-decoration:none}
-.brand{font-weight:700;font-stretch:125%;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.brand{display:block}
+.brand img{height:22px;width:auto;display:block}
 .hero{padding:72px 0 56px;border-bottom:1px solid var(--line)}
 .hero h1{margin:10px 0 14px;font-weight:800;font-stretch:62%;font-size:clamp(84px,20vw,220px);line-height:.82;letter-spacing:-.02em;text-transform:uppercase}
 .hero p{margin:0;max-width:46ch;color:var(--raw-dim);font-size:18px}
@@ -58,7 +59,7 @@ a{color:inherit}
 <body>
 <div class="wrap">
   <header class="top">
-    <a class="brand" href="./">Broken Stars</a>
+    <a class="brand" href="./"><img src="img/logo_broken.png" width="780" height="189" alt="Broken Stars"></a>
     <a class="mono dim" href="./#elegi">← volver a Still Flying</a>
   </header>
 
